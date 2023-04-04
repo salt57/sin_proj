@@ -17,36 +17,37 @@ const useChat = (data) => {
     socketRef.current.on(
       "mostRecentMessages",
       (mostRecentMessages) => {
-        console.log("most recent messages encrypted: ", mostRecentMessages)
-          fetch("http://localhost:5002/api/decode", {
-            method: "POST",
-            body: JSON.stringify({
-              username: data.user_name,
-              messages: [...mostRecentMessages].filter(
-                (msg) =>
-                  msg.intent_role === data.role ||
-                  msg.intent_role === "any"
-              ),
-              role: data.role,
-            }),
-            headers: {
-              "Content-type":
-                "application/json; charset=UTF-8",
-            },
+        console.log(
+          "most recent messages encrypted: ",
+          mostRecentMessages
+        );
+        fetch("http://localhost:5002/api/decode", {
+          method: "POST",
+          body: JSON.stringify({
+            username: data.user_name,
+            messages: [...mostRecentMessages].filter(
+              (msg) =>
+                msg.intent_role === data.role ||
+                msg.intent_role === "any"
+            ),
+            role: data.role,
+          }),
+          headers: {
+            "Content-type":
+              "application/json; charset=UTF-8",
+          },
+        })
+          .then(function (response) {
+            return response.json();
           })
-            .then(function (response) {
-              return response.json();
-            })
-            .then(function (data) {
-              console.log(data);
-              setMessages(data.messages);
-              if (!data.success) {
-                return;
-              }
-            })
-            .catch((error) =>
-              console.error("Error:", error)
-            )
+          .then(function (data) {
+            console.log(data);
+            setMessages(data.messages);
+            if (!data.success) {
+              return;
+            }
+          })
+          .catch((error) => console.error("Error:", error));
         // setMessages(
         //   [...mostRecentMessages].filter(
         //     (msg) =>
@@ -65,7 +66,12 @@ const useChat = (data) => {
         intent_role,
         message_text,
       }) => {
-        console.log("new message: ", message_text, "for role: ", intent_role);
+        console.log(
+          "new message: ",
+          message_text,
+          "for role: ",
+          intent_role
+        );
         if (
           intent_role === data.role ||
           intent_role === "any"

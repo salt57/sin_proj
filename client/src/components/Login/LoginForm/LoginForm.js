@@ -1,8 +1,15 @@
 import React, { useRef, useState } from "react";
-import { TextField, Fab, Button } from "@material-ui/core";
+import {
+  TextField,
+  Fab,
+  Button,
+  InputLabel,
+} from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import Loader from "react-loader-spinner";
 import axios from "axios";
+
+import "./LoginForm.css";
 
 const LoginForm = ({ setUserDataForChat }) => {
   const [loading, setLoading] = useState(false);
@@ -145,6 +152,14 @@ const LoginForm = ({ setUserDataForChat }) => {
   ) : (
     <form className="login-form" autoComplete="off">
       <TextField
+        InputProps={{
+          style: {
+            color: "white",
+            marginLeft: "2rem",
+            width: "90%",
+          },
+        }}
+        className="text"
         id="chat-username"
         label="Enter Username"
         margin="normal"
@@ -159,8 +174,15 @@ const LoginForm = ({ setUserDataForChat }) => {
         }}
       />
       <TextField
+        InputProps={{
+          style: {
+            color: "white",
+            marginLeft: "2rem",
+            width: "90%",
+          },
+        }}
         id="chat-username"
-        label="Enter password"
+        label="Enter Password"
         margin="normal"
         fullWidth
         rows="1"
@@ -173,8 +195,15 @@ const LoginForm = ({ setUserDataForChat }) => {
         }}
       />
       <TextField
+        InputProps={{
+          style: {
+            color: "white",
+            marginLeft: "2rem",
+            width: "90%",
+          },
+        }}
         id="chat-username"
-        label="Enter role"
+        label="Enter Role"
         margin="normal"
         fullWidth
         rows="1"
@@ -208,6 +237,7 @@ const LoginForm = ({ setUserDataForChat }) => {
         <br />
       </label> */}
       <Button
+        style={{ marginTop: "10px", marginLeft: "2rem" }}
         variant="contained"
         color="primary"
         onClick={signup}
@@ -216,6 +246,13 @@ const LoginForm = ({ setUserDataForChat }) => {
       </Button>
 
       <TextField
+        InputProps={{
+          style: {
+            color: "white",
+            marginLeft: "2rem",
+            width: "90%",
+          },
+        }}
         id="chat-username"
         label="Enter Username"
         margin="normal"
@@ -230,8 +267,15 @@ const LoginForm = ({ setUserDataForChat }) => {
         }}
       />
       <TextField
+        InputProps={{
+          style: {
+            color: "white",
+            marginLeft: "2rem",
+            width: "90%",
+          },
+        }}
         id="chat-username"
-        label="Enter password"
+        label="Enter Password"
         margin="normal"
         fullWidth
         rows="1"
@@ -244,6 +288,7 @@ const LoginForm = ({ setUserDataForChat }) => {
         }}
       />
       <Button
+        style={{ marginTop: "10px", marginLeft: "2rem" }}
         variant="contained"
         color="primary"
         onClick={enterChatClick}

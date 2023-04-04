@@ -1,17 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Aboreto&display=swap");
+
 #root {
-    display: flex;
+  display: flex;
+}
+
+body {
+  background-color: #9e95ff;
 }
 
 .container {
-    width: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    margin: auto;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: auto;
+  margin-top: 7rem;
+  padding: 2rem 2rem 2rem 0;
+  border: 3px solid #000000;
+  border-radius: 0.5rem;
+  background-color: #3e4a63;
 }
 
 .container-title {
-    font-size: 18px;
-    text-align: center;
-    margin: 10px 0;
+  font-size: 3rem;
+  text-align: center;
+  color: #ffffff;
+  font-family: "Roboto";
 }
