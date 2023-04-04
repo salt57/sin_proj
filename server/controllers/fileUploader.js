@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const uploadImage = (req, res) => {
+  console.log("hello")
   if(!req.file){
     res.status(204);
   }else{

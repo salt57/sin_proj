@@ -1,51 +1,130 @@
-import {useEffect, useState, useRef} from "react";
+import { useEffect, useState, useRef } from "react";
 import socketIOClient from "socket.io-client";
 
-const useChat = () => {
+const useChat = (data) => {
+  // console.log(data);
   const socketRef = useRef();
   const [messages, setMessages] = useState([]);
 
   //when component mounts and changes
-  useEffect(() =>{
-    socketRef.current = socketIOClient("http://localhost:5001");
+  useEffect(() => {
+    socketRef.current = socketIOClient(
+      "http://localhost:5001"
+    );
 
-    socketRef.current.on("mostRecentMessages", (mostRecentMessages) =>{
-      //on start, set as messages the mostRecentMessages
-      //in case the server restarts, we want to replace the current messages
-      //with those from database
-      //not add more
-      setMessages(messages => [...mostRecentMessages]);
-    });
+    // socketRef.current.emit("mostRecentMessages", data);
 
-    socketRef.current.on("newChatMessage",({user_name, user_avatar, message_text}) =>{
-      //append message to the end of array, after using spread operator
-      setMessages(messages => [...messages, {user_name: user_name, user_avatar: user_avatar, message_text: message_text}]);
+    socketRef.current.on(
+      "mostRecentMessages",
+      (mostRecentMessages) => {
+        console.log("most recent messages encrypted: ", mostRecentMessages)
+          fetch("http://localhost:5002/api/decode", {
+            method: "POST",
+            body: JSON.stringify({
+              username: data.user_name,
+              messages: [...mostRecentMessages].filter(
+                (msg) =>
+                  msg.intent_role === data.role ||
+                  msg.intent_role === "any"
+              ),
+              role: data.role,
+            }),
+            headers: {
+              "Content-type":
+                "application/json; charset=UTF-8",
+            },
+          })
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (data) {
+              console.log(data);
+              setMessages(data.messages);
+              if (!data.success) {
+                return;
+              }
+            })
+            .catch((error) =>
+              console.error("Error:", error)
+            )
+        // setMessages(
+        //   [...mostRecentMessages].filter(
+        //     (msg) =>
+        //       msg.intent_role === data.role ||
+        //       msg.intent_role === "any"
+        //   )
+        // );
+      }
+    );
 
-      //this will not work
-      //useeffect runs once, when the component first loads
-      //acts as closure that has access to messages (parent scope)
-      //when it first runs, messages is empty array
-      //when you add new messages to the messages array, it is no longer empty
-      //and the array is changed (not mutated, new array)
-      //with this way you're no longer able to access the current value of messages here
-      //you would have access only to the first value of messages (empty array)
-      //and means you won't be able to append more messages
-      //so instead we use the above, that's we use a callback that will get the latest value of messages
-      //and then appends the latest data
-      //setMessages([...messages, message])
-    })
+    socketRef.current.on(
+      "newChatMessage",
+      ({
+        user_name,
+        user_avatar,
+        intent_role,
+        message_text,
+      }) => {
+        console.log("new message: ", message_text, "for role: ", intent_role);
+        if (
+          intent_role === data.role ||
+          intent_role === "any"
+        ) {
+          fetch("http://localhost:5002/api/decode", {
+            method: "POST",
+            body: JSON.stringify({
+              username: data.user_name,
+              messages: [
+                {
+                  user_name,
+                  message_text,
+                  intent_role,
+                },
+              ],
+              role: data.role,
+            }),
+            headers: {
+              "Content-type":
+                "application/json; charset=UTF-8",
+            },
+          })
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (data) {
+              console.log(data);
+              setMessages((messages) => [
+                ...messages,
+                {
+                  user_name: data.messages[0].user_name,
+                  user_avatar: user_avatar,
+                  intent_role: data.messages[0].intent_role,
+                  message_text:
+                    data.messages[0].message_text,
+                },
+              ]);
+              if (!data.success) {
+                return;
+              }
+            })
+            .catch((error) =>
+              console.error("Error:", error)
+            );
+        }
+      }
+    );
 
-    return ()=>{
+    return () => {
       socketRef.current.disconnect();
-    }
-  },[]);
+    };
+  }, []);
 
-  //message is part of an object
-  const sendMessage = (messageObject) =>{
-    socketRef.current.emit("newChatMessage", messageObject)
-  }
+  const sendMessage = (messageObject) => {
+    socketRef.current.emit("newChatMessage", messageObject);
+  };
+  // socketRef.current.emit("mostRecentMessages", data);
 
-  return {messages, sendMessage};
-}
+  return { messages, sendMessage };
+};
 
 export default useChat;

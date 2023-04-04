@@ -1,53 +1,148 @@
-import React, {useRef, useState} from "react";
-import {TextField, Fab, Button} from "@material-ui/core";
+import React, { useRef, useState } from "react";
+import { TextField, Fab, Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import Loader from "react-loader-spinner";
 import axios from "axios";
 
-const LoginForm = ({setUserDataForChat}) => {
+const LoginForm = ({ setUserDataForChat }) => {
   const [loading, setLoading] = useState(false);
   const userNameInput = useRef("");
-  const imageInput = useRef("");
+  const passwordInput = useRef("");
+  const userNameLoginInput = useRef("");
+  const passwordLoginInput = useRef("");
+  const roleInput = useRef("");
+  // const imageInput = useRef("");
 
-  const enterChatClick = () =>{
-    setUserName(userNameInput.current.value, imageInput.current.files[0]);
-  }
+  const enterChatClick = () => {
+    fetch("http://localhost:5002/api/login", {
+      method: "POST",
+      body: JSON.stringify({
+        username: userNameLoginInput.current.value,
+        password: passwordLoginInput.current.value,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        console.log(data);
+        if (!data.success) {
+          return;
+        }
+        setUserName(
+          userNameLoginInput.current.value,
+          passwordLoginInput.current.value,
+          data.role
+          // imageInput.current.files[0]
+        );
+      })
+      .catch((error) => console.error("Error:", error));
+  };
+  const signup = () => {
+    // console.log(userNameInput.current);
+    fetch("http://localhost:5002/api/register", {
+      method: "POST",
+      body: JSON.stringify({
+        username: userNameInput.current.value,
+        password: passwordInput.current.value,
+        role: roleInput.current.value,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        console.log(data);
+        setUserName(
+          userNameInput.current.value,
+          passwordInput.current.value,
+          roleInput.current.value
+          // imageInput.current.files[0]
+        );
+      })
+      .catch((error) => console.error("Error:", error));
+  };
 
   const sendData = async (options) => {
-    return await axios.post('http://localhost:5002/api/upload',options);
-  }
+    return await axios.post(
+      "http://localhost:5002/api/upload",
+      options
+    );
+  };
+  const getAvatar = async (options) => {
+    return await axios.post(
+      "http://localhost:5002/api/getAvatar",
+      options
+    );
+  };
 
-  const setUserName = (userName, imageFile) =>{
-    if(userName === ""){
+  const setUserName = (
+    userName,
+    // imageFile,
+    password,
+    role
+  ) => {
+    if (userName === "" || password === "" || role === "") {
       return false;
     }
-    if(imageFile === undefined){
-      setUserDataForChat({
-        user_name: userName,
-      });
-    }else{
-      setLoading(true);
-      const data = new FormData();
-      data.append('avatar',imageFile);
-      try{
-        sendData(data)
-          .then(response => {
-            setUserDataForChat({
-              user_name: userName,
-              user_avatar: response.data.user_avatar_url
-            });
-          })
-          .catch( error => {
-            alert(error);
-          })
-          .finally(() => setLoading(false))
-      }catch (e) {
+    // if (imageFile === undefined) {
+    // setLoading(true);
+    // const data = new FormData();
+    // data.append("userName", userName);
+    // data.append("password", password);
+    // try {
+    //   getAvatar(data)
+    //     .then((response) => {
+    setUserDataForChat({
+      user_name: userName,
+      // user_avatar: response.data.user_avatar_url,
+      password: password,
+      role: role,
+    });
+    //     })
+    //     .catch((error) => {
+    //       alert(error);
+    //     })
+    //     .finally(() => setLoading(false));
+    // } catch (e) {}
+    // } else {
+    //   setLoading(true);
+    //   const data = new FormData();
+    //   data.append("avatar", imageFile);
+    //   // data.append("userName", userName);
+    //   // data.append("password", password);
+    //   try {
+    //     sendData(data)
+    //       .then((response) => {
+    //         setUserDataForChat({
+    //           user_name: userName,
+    //           user_avatar: response.data.user_avatar_url,
+    //           password: password,
+    //           role: role,
+    //         });
+    //       })
+    //       .catch((error) => {
+    //         alert(error);
+    //       })
+    //       .finally(() => setLoading(false));
+    //   } catch (e) {}
+    // }
+  };
 
-      }
-    }
-  }
-
-  return loading ? (<Loader type="ThreeDots" color="#2BAD60" height={100} width={100} />) : (
+  return loading ? (
+    <Loader
+      type="ThreeDots"
+      color="#2BAD60"
+      height={100}
+      width={100}
+    />
+  ) : (
     <form className="login-form" autoComplete="off">
       <TextField
         id="chat-username"
@@ -56,16 +151,44 @@ const LoginForm = ({setUserDataForChat}) => {
         fullWidth
         rows="1"
         inputRef={userNameInput}
-        onKeyDown={event => {
-          if(event.key === "Enter"){
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
             event.preventDefault();
-            setUserName(event.target.value, imageInput.current.files[0]);
+            signup();
           }
         }}
       />
-      <label>
+      <TextField
+        id="chat-username"
+        label="Enter password"
+        margin="normal"
+        fullWidth
+        rows="1"
+        inputRef={passwordInput}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            signup();
+          }
+        }}
+      />
+      <TextField
+        id="chat-username"
+        label="Enter role"
+        margin="normal"
+        fullWidth
+        rows="1"
+        inputRef={roleInput}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            signup();
+          }
+        }}
+      />
+      {/* <label>
         <input
-          style={{display:"none"}}
+          style={{ display: "none" }}
           id="upload-avatar"
           name="upload-avatar"
           ref={imageInput}
@@ -83,16 +206,52 @@ const LoginForm = ({setUserDataForChat}) => {
         </Fab>
         <br />
         <br />
-      </label>
+      </label> */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={signup}
+      >
+        Register
+      </Button>
+
+      <TextField
+        id="chat-username"
+        label="Enter Username"
+        margin="normal"
+        fullWidth
+        rows="1"
+        inputRef={userNameLoginInput}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            enterChatClick();
+          }
+        }}
+      />
+      <TextField
+        id="chat-username"
+        label="Enter password"
+        margin="normal"
+        fullWidth
+        rows="1"
+        inputRef={passwordLoginInput}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            enterChatClick();
+          }
+        }}
+      />
       <Button
         variant="contained"
         color="primary"
         onClick={enterChatClick}
       >
-        Enter Chat
+        Signin
       </Button>
     </form>
-  )
-}
+  );
+};
 
 export default LoginForm;

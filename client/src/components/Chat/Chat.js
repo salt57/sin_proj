@@ -4,17 +4,16 @@ import Messages from "./Messages/Messages";
 import useChat from "./useChat";
 
 const Chat = (currentUserData) => {
-  //useChat calls to our custom hook
-  //it returns an object with messages and sending a message
-  const {messages, sendMessage} = useChat();
+  // console.log(currentUserData.currentUserData.role)
+  const { messages, sendMessage } = useChat(
+    currentUserData.currentUserData
+  );
   return (
     <div>
-      <Messages
-        messages={messages}
-      />
+      <Messages messages={messages} />
       <MessageBox
         userData={currentUserData}
-        onSendMessage={message => {
+        onSendMessage={(message) => {
           sendMessage(message);
         }}
       />
